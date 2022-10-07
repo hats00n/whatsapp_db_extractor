@@ -18,13 +18,12 @@ if platform.system() == 'Windows':
 if platform.system() == 'Linux':
     is_linux = True
 
-
 # Global command line helpers
 tmp = 'tmp/'
 helpers = 'helpers/'
 bin = 'bin/'
 extracted = 'extracted/'
-if(is_windows):
+if (is_windows):
     adb = 'bin\\adb.exe -s '
 else:
     adb = 'adb -s '
@@ -42,7 +41,7 @@ def check_java():
     custom_print('>>> I am in view_extract.check_java()', is_print=False)
     java_version = ''
     out = getoutput('java -version')
-    if(out):
+    if (out):
         java_version = re.findall('(?<=version ")(.*)(?=")', out)
     else:
         custom_print(
@@ -54,8 +53,9 @@ def check_java():
             f'Found Java v{java_version[0]} installed on system. Continuing...')
     else:
         is_no_java_continue = custom_input(
-            'It looks like you don\'t have JAVA installed on your system. If you are sure that JAVA is installed you can (C)ontinue with the process or (S)top?: ', 'red') or 's'
-        if(is_no_java_continue.upper() == 'C'):
+            'It looks like you don\'t have JAVA installed on your system. If you are sure that JAVA is installed you can (C)ontinue with the process or (S)top?: ',
+            'red') or 's'
+        if (is_no_java_continue.upper() == 'C'):
             custom_print(
                 'Continuing without detecting JAVA...', 'yellow')
         else:
@@ -64,7 +64,7 @@ def check_java():
 
 def clean_tmp():
     custom_print('>>> I am in view_extract.clean_tmp()', is_print=False)
-    if(os.path.isdir(tmp)):
+    if (os.path.isdir(tmp)):
         custom_print(f'Cleaning up \"{tmp}\" folder...', 'yellow')
         shutil.rmtree(tmp)
 
@@ -77,7 +77,7 @@ def kill_me(reason: str = ''):
         custom_print(reason)
     custom_print('Exiting...')
     os.system(
-        'bin\\adb.exe kill-server') if(is_windows) else os.system('adb kill-server')
+        'bin\\adb.exe kill-server') if (is_windows) else os.system('adb kill-server')
     custom_print(
         'Turn off USB debugging [and USB debugging (Security Settings)] if you\'re done.', 'cyan')
     custom_input('Hit \"Enter\" key to continue....', 'cyan')
@@ -97,7 +97,7 @@ def extract_ab(is_java_installed, is_tar_only=False):
             os.mkdir(f'{extracted}{username}')
             custom_print(f'Created folder \"{extracted}{username}\"')
         else:
-            while(os.path.isdir(f'{extracted}{username}')):
+            while (os.path.isdir(f'{extracted}{username}')):
                 custom_print('\n', is_get_time=False)
                 custom_print(
                     f'Folder \"{extracted}{username}\" exists, contents may get overwritten.', 'red')
@@ -113,23 +113,20 @@ def extract_ab(is_java_installed, is_tar_only=False):
             'Run \"view_extract.py\" after installing Java on system.')
         clean_tmp()
         kill_me()
-    if(os.path.isfile(f'{tmp}whatsapp.ab')):
+    if (os.path.isfile(f'{tmp}whatsapp.ab')):
         custom_print(
             f'Found \"whatsapp.ab\" in \"tmp\" folder. Continuing... Size: {os.path.getsize(tmp + "/whatsapp.ab")} bytes.')
-        username = custom_input(
-            'Enter a name for this user (default \"user\").: ') or 'user'
-        ab_pass = custom_input(
-            'Enter same password which you entered on device when prompted earlier.: ', is_log=False)
+        username = "user"
         try:
             unpack_out = getoutput(
-                f'java -jar {bin}abe.jar unpack {tmp}whatsapp.ab {tmp}whatsapp.tar {ab_pass}')
-            if('Exception' in unpack_out):
+                f'java -jar {bin}abe.jar unpack {tmp}whatsapp.ab {tmp}whatsapp.tar ""')
+            if ('Exception' in unpack_out):
                 custom_print(f'Could not unpack \"{tmp}whatsapp.ab\"', 'red')
                 custom_print(unpack_out, 'red')
                 kill_me()
             custom_print(
                 f'Successfully unpacked \"{tmp}whatsapp.ab\" to \"{tmp}whatsapp.tar\". Size: {os.path.getsize(tmp + "whatsapp.tar")} bytes.')
-            if(is_tar_only):
+            if (is_tar_only):
                 taking_out_only_tar(username)
             else:
                 taking_out_main_files(username)
@@ -142,14 +139,40 @@ def extract_ab(is_java_installed, is_tar_only=False):
         kill_me()
 
 
+def pack_tar_file(tar_file_path):
+    if os.path.isfile(tar_file_path):
+        os.mkdir(tmp) if not (os.path.isdir(tmp)) else custom_print(
+            f'Folder {tmp} already exists.', 'yellow')
+        try:
+            unpack_out = getoutput(
+                f'java -jar {bin}abe.jar pack {tmp}whatsapp.ab {tar_file_path} ')
+            if ('Exception' in unpack_out):
+                custom_print(f'Could not pack \"{tar_file_path}\"', 'red')
+                custom_print(unpack_out, 'red')
+                kill_me()
+            custom_print(
+                f'Successfully packed \"{tmp}whatsapp.ab\" from \"{tar_file_path}\". Size: {os.path.getsize(tar_file_path)} bytes.')
+
+            custom_print("restoring...")
+
+        except Exception as e:
+            custom_print(e, 'red')
+            kill_me()
+    else:
+        custom_print(
+            '\aCould not find {}'.format(tar_file_path), 'red')
+        kill_me()
+
+
+
 def extract_self(is_tar_only=False):
     custom_print(
         f'>>> I am in view_extract.extract_self({is_tar_only=!s})', is_print=False)
     list_user_folders()
     username = custom_input(
         'Enter a name of folder from above (case sensitive): ')
-    while(not os.path.isfile(f'{extracted}{username}/whatsapp.ab')):
-        if(os.path.isdir(f'{extracted}{username}') and not os.path.isfile(f'{extracted}{username}/whatsapp.ab')):
+    while (not os.path.isfile(f'{extracted}{username}/whatsapp.ab')):
+        if (os.path.isdir(f'{extracted}{username}') and not os.path.isfile(f'{extracted}{username}/whatsapp.ab')):
             custom_print(
                 f'Folder \"{extracted}{username}\" does not even contain whatsapp.ab', 'red')
             kill_me()
@@ -162,13 +185,13 @@ def extract_self(is_tar_only=False):
             f'Folder \"{tmp}\" already exists.', 'yellow')
         unpack_out = getoutput(
             f'java -jar {bin}abe.jar unpack {extracted}{username}/whatsapp.ab {tmp}whatsapp.tar {ab_pass}')
-        if('Exception' in unpack_out):
+        if ('Exception' in unpack_out):
             custom_print(f'Could not unpack \"{tmp}whatsapp.ab\"', 'red')
             custom_print(unpack_out, 'red')
             kill_me()
         custom_print(
             f'Successfully unpacked \"{extracted}{username}/whatsapp.ab\" to \"{tmp}whatsapp.tar\". Size: {os.path.getsize(tmp + "whatsapp.tar")} bytes.')
-        if(is_tar_only):
+        if (is_tar_only):
             taking_out_only_tar(username)
         else:
             taking_out_main_files(username)
@@ -183,7 +206,7 @@ def list_user_folders():
     custom_print('\n', is_get_time=False)
     custom_print('Available user folders in extracted directory.')
     all_folders = next(os.walk(extracted))[1]
-    if(len(all_folders) == 0):
+    if (len(all_folders) == 0):
         custom_print(f'No folders found in \"{extracted}\" folder.', 'red')
         kill_me()
     for folder in all_folders:
@@ -216,7 +239,8 @@ def taking_out_main_files(username):
     os.mkdir(extracted) if not (os.path.isdir(extracted)) else custom_print(
         f'Folder \"{extracted}\" already exists.', 'yellow')
     os.mkdir(f'{extracted}{username}') if not (os.path.isdir(f'{extracted}{username}')
-                                               ) else custom_print(f'Folder \"{extracted}{username}\" already exists.', 'yellow')
+                                               ) else custom_print(f'Folder \"{extracted}{username}\" already exists.',
+                                                                   'yellow')
     # If user folder already exists ask user to overwrite or skip.
     custom_print(f'Taking out main files in \"{tmp}\" folder temporarily.')
     try:
@@ -233,7 +257,7 @@ def taking_out_main_files(username):
         }
 
         for key in files_to_extract:
-            if(files_to_extract[key] in all_tar_files):
+            if (files_to_extract[key] in all_tar_files):
                 tar.extract(files_to_extract[key], tmp)
                 os.replace(
                     f'{tmp}{files_to_extract[key]}', f'{extracted}{username}/{key}')
@@ -241,10 +265,12 @@ def taking_out_main_files(username):
             else:
                 if key in ['encrypted_backup.key', 'password_data.key']:
                     custom_print(
-                        f'\"{key}\" is not present in tarfile, if you have crypt15 backups then visit \"https://github.com/YuvrajRaghuvanshiS/WhatsApp-Key-Database-Extractor/issues/94\" for more details.', 'red', ['bold'])
+                        f'\"{key}\" is not present in tarfile, if you have crypt15 backups then visit \"https://github.com/YuvrajRaghuvanshiS/WhatsApp-Key-Database-Extractor/issues/94\" for more details.',
+                        'red', ['bold'])
                 else:
                     custom_print(
-                        f'\"{key}\" is not present in tarfile, visit \"https://github.com/YuvrajRaghuvanshiS/WhatsApp-Key-Database-Extractor/issues/73\" for more details.', 'red', ['bold'])
+                        f'\"{key}\" is not present in tarfile, visit \"https://github.com/YuvrajRaghuvanshiS/WhatsApp-Key-Database-Extractor/issues/73\" for more details.',
+                        'red', ['bold'])
         tar.close()
         time.sleep(2)  # So that 'tar' is free to delete.
         try:
@@ -261,21 +287,24 @@ def taking_out_main_files(username):
             'You should not leave these extracted database and other files hanging in folder, it is very insecure.')
         is_create_archive = custom_input(
             'Would you like to create a password protected archive? (default y): ') or 'Y'
-        if(is_create_archive.upper() == 'Y'):
+        if (is_create_archive.upper() == 'Y'):
             custom_print('\n', is_get_time=False)
-            custom_print('Now an archive will be created in extracted folder and original files will be deleted. To later \"un-archive\" and access these files you need to run \"python protect.py\" from root directory of this project.', 'yellow')
+            custom_print(
+                'Now an archive will be created in extracted folder and original files will be deleted. To later \"un-archive\" and access these files you need to run \"python protect.py\" from root directory of this project.',
+                'yellow')
             protect.compress(username)
         else:
             custom_print('\n', is_get_time=False)
             custom_print(
-                f'\aYour WhatsApp database along with other files is in \"{os.path.realpath(extracted + username)}\" folder.', 'yellow')
+                f'\aYour WhatsApp database along with other files is in \"{os.path.realpath(extracted + username)}\" folder.',
+                'yellow')
             custom_print('\n', is_get_time=False)
             custom_input('Hit \"Enter\" key to continue.')
 
             try:  # Open in explorer.
-                if(is_windows):
+                if (is_windows):
                     os.startfile(os.path.realpath(f'{extracted}{username}'))
-                elif(is_linux):
+                elif (is_linux):
                     os.system(
                         f'xdg-open {os.path.realpath(extracted + username)}')
                 else:
@@ -315,9 +344,9 @@ def taking_out_only_tar(username):
     custom_input('Hit \"Enter\" key to continue.')
 
     try:  # Open in explorer.
-        if(is_windows):
+        if (is_windows):
             os.startfile(os.path.realpath(extracted))
-        elif(is_linux):
+        elif (is_linux):
             os.system(f'xdg-open {os.path.realpath(extracted)}')
         else:
             try:
@@ -331,10 +360,12 @@ def taking_out_only_tar(username):
 
 if __name__ == "__main__":
     from datetime import datetime
+
     dt = datetime.now()
 
     custom_print(
-        f'\n\n\n====== Logging starts here. ====== \nFile: {os.path.basename(__file__)}\nDate: {dt.strftime("%A %d/%m/%Y, %H:%M:%S")}\nIf you see any password here then do let know @github.com/YuvrajRaghuvanshiS/WhatsApp-Key-Database-Extractor\n\n\n', is_get_time=False, is_print=False)
+        f'\n\n\n====== Logging starts here. ====== \nFile: {os.path.basename(__file__)}\nDate: {dt.strftime("%A %d/%m/%Y, %H:%M:%S")}\nIf you see any password here then do let know @github.com/YuvrajRaghuvanshiS/WhatsApp-Key-Database-Extractor\n\n\n',
+        is_get_time=False, is_print=False)
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
