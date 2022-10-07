@@ -440,7 +440,7 @@ if __name__ == "__main__":
                         help='Get entire WhatsApp\'s data in \"<username>.tar\" file instead of just getting few important files.')
     parser.add_argument('-r', '--restore', action='store_true',
                         help='restore original whatsapp')
-    parser.add_argument('-rp', '--restore-path', action='store_true',
+    parser.add_argument('-rp', '--restore-path',
                         help='Path to .tar file for restoring')
     args = parser.parse_args()
 
