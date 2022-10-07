@@ -145,7 +145,7 @@ def pack_tar_file(tar_file_path):
             f'Folder {tmp} already exists.', 'yellow')
         try:
             unpack_out = getoutput(
-                f'java -jar {bin}abe.jar pack {tmp}whatsapp.ab {tar_file_path} ')
+                f'java -jar {bin}abe.jar pack {tar_file_path} {tmp}whatsapp.ab ')
             if ('Exception' in unpack_out):
                 custom_print(f'Could not pack \"{tar_file_path}\"', 'red')
                 custom_print(unpack_out, 'red')
