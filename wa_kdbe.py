@@ -441,7 +441,7 @@ if __name__ == "__main__":
     parser.add_argument('-r', '--restore', action='store_true',
                         help='restore original whatsapp')
     parser.add_argument('-rp', '--restore-path', action='store_true',
-                        help='Path to .ab file for restoring')
+                        help='Path to .tar file for restoring')
     args = parser.parse_args()
 
     is_allowed_reboot = args.allow_reboot
